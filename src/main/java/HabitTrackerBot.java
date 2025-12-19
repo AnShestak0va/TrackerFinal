@@ -17,14 +17,13 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
     private DatabaseManager dbManager;
 
     // Хранилище для временных данных пользователей
-    // Ключ: user_id, Значение: состояние и данные пользователя
     private java.util.Map<Long, UserState> userStates = new java.util.HashMap<>();
 
     // Класс для хранения состояния пользователя и его временных данных
     private class UserState {
-        String state; // Текущее состояние пользователя
-        String tempData; // Временные данные (название привычки, ID и т.д.)
-        Integer tempHabitId; // Временный ID привычки
+        String state;
+        String tempData;
+        Integer tempHabitId;
 
         UserState(String state) {
             this.state = state;
@@ -56,7 +55,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
             long userId = update.getMessage().getFrom().getId();
 
-            // Обрабатываем команды пользователя
             switch (messageText) {
                 case "/start":
                     sendWelcomeMessage(chatId);
@@ -83,7 +81,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     askForHabitToAddDescription(chatId, userId);
                     break;
                 default:
-                    // Если это не команда, проверяем состояние пользователя
                     handleUserInput(chatId, userId, messageText);
             }
         }
@@ -282,24 +279,19 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
-        // Получаем текущее состояние пользователя
         UserState userState = userStates.get(userId);
 
         if (userState == null) {
-            // Если состояние не установлено, это неизвестная команда
             message.setText("Неизвестная команда. Используйте /help для просмотра доступных команд.");
         } else {
-            // Обрабатываем ввод в зависимости от состояния пользователя
             switch (userState.state) {
                 case "waiting_for_habit_name":
-                    // Пользователь ввел название привычки
                     userStates.put(userId, new UserState("waiting_for_habit_description", input));
                     message.setText("📝 Теперь введите описание для привычки \"" + input + "\":\n" +
                             "(Если не хотите добавлять описание, отправьте '-' )");
                     break;
 
                 case "waiting_for_habit_description":
-                    // Пользователь ввел описание привычки
                     String habitName = userState.tempData;
                     String description = input.equals("-") ? "" : input;
 
@@ -311,11 +303,10 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     } else {
                         message.setText("❌ Ошибка при создании привычки. Попробуйте еще раз.");
                     }
-                    userStates.remove(userId); // Сбрасываем состояние
+                    userStates.remove(userId);
                     break;
 
                 case "waiting_for_complete_id":
-                    // Пользователь ввел ID привычки для отметки выполнения
                     try {
                         int habitId = Integer.parseInt(input);
                         boolean completed = dbManager.completeHabit(habitId, userId);
@@ -328,11 +319,10 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     } catch (NumberFormatException e) {
                         message.setText("❌ Пожалуйста, введите число (ID привычки)");
                     }
-                    userStates.remove(userId); // Сбрасываем состояние
+                    userStates.remove(userId);
                     break;
 
                 case "waiting_for_delete_id":
-                    // Пользователь ввел ID привычки для удаления
                     try {
                         int habitId = Integer.parseInt(input);
                         boolean deleted = dbManager.deleteHabit(habitId, userId);
@@ -345,17 +335,15 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     } catch (NumberFormatException e) {
                         message.setText("❌ Пожалуйста, введите число (ID привычки)");
                     }
-                    userStates.remove(userId); // Сбрасываем состояние
+                    userStates.remove(userId);
                     break;
 
                 case "waiting_for_description_habit_id":
-                    // Пользователь ввел ID привычки для добавления описания
                     try {
                         int habitId = Integer.parseInt(input);
                         Habit habit = dbManager.getHabitById(habitId, userId);
 
                         if (habit != null) {
-                            // Сохраняем ID привычки и запрашиваем описание
                             userStates.put(userId, new UserState("waiting_for_description_text", null, habitId));
 
                             String currentDesc = habit.getDescription();
@@ -369,11 +357,11 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                             }
                         } else {
                             message.setText("❌ Не удалось найти привычку с таким ID");
-                            userStates.remove(userId); // Сбрасываем состояние
+                            userStates.remove(userId);
                         }
                     } catch (NumberFormatException e) {
                         message.setText("❌ Пожалуйста, введите число (ID привычки)");
-                        userStates.remove(userId); // Сбрасываем состояние
+                        userStates.remove(userId);
                     }
                     break;
 
@@ -389,12 +377,12 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     } else {
                         message.setText("❌ Ошибка при обновлении описания");
                     }
-                    userStates.remove(userId); // Сбрасываем состояние
+                    userStates.remove(userId);
                     break;
 
                 default:
                     message.setText("Неизвестное состояние. Используйте /help для просмотра команд.");
-                    userStates.remove(userId); // Сбрасываем состояние
+                    userStates.remove(userId);
             }
         }
 
@@ -449,13 +437,13 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
     // Метод, возвращающий имя бота (без @)
     @Override
     public String getBotUsername() {
-        return ""; // Замените на имя вашего бота
+        return ""; //имя бота
     }
 
     // Метод, возвращающий токен бота
     @Override
     public String getBotToken() {
-        return ""; // Замените на ваш токен
+        return ""; //токен бота
     }
 
     // Главный метод для запуска бота

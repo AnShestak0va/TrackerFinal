@@ -49,11 +49,9 @@ public class DatabaseManager {
         String sql = "INSERT INTO habits (user_id, name, description, created_date) VALUES (?, ?, ?, datetime('now'))";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            // Устанавливаем параметры в SQL запрос
             pstmt.setLong(1, userId);
             pstmt.setString(2, name);
             pstmt.setString(3, description);
-            // Выполняем запрос на вставку
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -69,10 +67,8 @@ public class DatabaseManager {
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setLong(1, userId);
-            // Выполняем запрос и получаем результат
             ResultSet rs = pstmt.executeQuery();
 
-            // Обрабатываем каждую строку результата
             while (rs.next()) {
                 Habit habit = new Habit(
                         rs.getInt("id"),
@@ -138,8 +134,6 @@ public class DatabaseManager {
                 int totalHabits = rs.getInt("total_habits");
                 int totalCompleted = rs.getInt("total_completed");
                 int totalDays = rs.getInt("total_days");
-
-                // Рассчитываем процент успеха
                 double successRate = totalDays > 0 ? (double) totalCompleted / totalDays * 100 : 0;
 
                 return String.format("📊 Ваша статистика:\n\n" +
