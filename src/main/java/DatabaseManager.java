@@ -2,22 +2,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Класс для работы с базой данных SQLite
-// Отвечает за создание таблиц и выполнение операций с привычками
 public class DatabaseManager {
 
-    // URL для подключения к базе данных SQLite
     private static final String DB_URL = "jdbc:sqlite:habits.db";
     private Connection connection;
 
-    // Конструктор класса, устанавливает соединение с базой данных
     public DatabaseManager() {
         try {
-            // Загружаем драйвер SQLite
             Class.forName("org.sqlite.JDBC");
-            // Устанавливаем соединение с базой данных
             connection = DriverManager.getConnection(DB_URL);
-            // Создаем таблицу для привычек, если она не существует
             createTable();
             System.out.println("База данных подключена успешно");
         } catch (Exception e) {
@@ -37,14 +30,12 @@ public class DatabaseManager {
                 "total_days INTEGER DEFAULT 0)";
 
         try (Statement stmt = connection.createStatement()) {
-            // Выполняем SQL запрос для создания таблицы
             stmt.execute(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // Метод для добавления новой привычки
     public boolean addHabit(long userId, String name, String description) {
         String sql = "INSERT INTO habits (user_id, name, description, created_date) VALUES (?, ?, ?, datetime('now'))";
 
@@ -60,7 +51,6 @@ public class DatabaseManager {
         }
     }
 
-    // Метод для получения всех привычек пользователя
     public List<Habit> getUserHabits(long userId) {
         List<Habit> habits = new ArrayList<>();
         String sql = "SELECT * FROM habits WHERE user_id = ?";
@@ -87,7 +77,6 @@ public class DatabaseManager {
         return habits;
     }
 
-    // Метод для отметки выполнения привычки
     public boolean completeHabit(int habitId, long userId) {
         String sql = "UPDATE habits SET completed_days = completed_days + 1, total_days = total_days + 1 " +
                 "WHERE id = ? AND user_id = ?";
@@ -95,7 +84,6 @@ public class DatabaseManager {
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, habitId);
             pstmt.setLong(2, userId);
-            // Выполняем обновление и проверяем, была ли обновлена хоть одна строка
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
@@ -104,7 +92,6 @@ public class DatabaseManager {
         }
     }
 
-    // Метод для удаления привычки
     public boolean deleteHabit(int habitId, long userId) {
         String sql = "DELETE FROM habits WHERE id = ? AND user_id = ?";
 
@@ -119,7 +106,6 @@ public class DatabaseManager {
         }
     }
 
-    // Метод для получения статистики пользователя
     public String getUserStats(long userId) {
         String sql = "SELECT COUNT(*) as total_habits, " +
                 "SUM(completed_days) as total_completed, " +
@@ -150,7 +136,6 @@ public class DatabaseManager {
         return "📊 У вас пока нет привычек для статистики";
     }
 
-    // Метод для получения привычки по ID
     public Habit getHabitById(int habitId, long userId) {
         String sql = "SELECT * FROM habits WHERE id = ? AND user_id = ?";
 
@@ -177,7 +162,6 @@ public class DatabaseManager {
         return null;
     }
 
-    // Метод для обновления описания привычки
     public boolean updateHabitDescription(int habitId, long userId, String description) {
         String sql = "UPDATE habits SET description = ? WHERE id = ? AND user_id = ?";
 
@@ -194,7 +178,6 @@ public class DatabaseManager {
         }
     }
 
-    // Метод для закрытия соединения с базой данных
     public void close() {
         try {
             if (connection != null) {

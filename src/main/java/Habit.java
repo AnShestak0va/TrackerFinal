@@ -1,5 +1,3 @@
-// Класс-модель для представления привычки
-// Содержит все данные о привычке пользователя
 public class Habit {
     private int id;
     private long userId;
@@ -9,7 +7,6 @@ public class Habit {
     private int completedDays;
     private int totalDays;
 
-    // Конструктор для создания объекта привычки
     public Habit(int id, long userId, String name, String description,
                  String createdDate, int completedDays, int totalDays) {
         this.id = id;
@@ -21,7 +18,6 @@ public class Habit {
         this.totalDays = totalDays;
     }
 
-    // Геттеры для доступа к полям класса
     public int getId() { return id; }
     public long getUserId() { return userId; }
     public String getName() { return name; }
@@ -30,7 +26,6 @@ public class Habit {
     public int getCompletedDays() { return completedDays; }
     public int getTotalDays() { return totalDays; }
 
-    // Метод для форматирования информации о привычке
     @Override
     public String toString() {
         return String.format("📌 Привычка #%d\n" +

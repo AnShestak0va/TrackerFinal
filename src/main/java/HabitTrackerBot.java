@@ -10,16 +10,12 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import java.util.ArrayList;
 import java.util.List;
 
-// Главный класс бота-трекера привычек
 public class HabitTrackerBot extends TelegramLongPollingBot {
 
-    // Объект для работы с базой данных
     private DatabaseManager dbManager;
 
-    // Хранилище для временных данных пользователей
     private java.util.Map<Long, UserState> userStates = new java.util.HashMap<>();
 
-    // Класс для хранения состояния пользователя и его временных данных
     private class UserState {
         String state;
         String tempData;
@@ -41,12 +37,10 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Конструктор бота, инициализирует подключение к базе данных
     public HabitTrackerBot() {
         dbManager = new DatabaseManager();
     }
 
-    // Основной метод обработки входящих сообщений
     @Override
     public void onUpdateReceived(Update update) {
         // Проверяем, что получено текстовое сообщение
@@ -86,7 +80,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для отправки приветственного сообщения
     private void sendWelcomeMessage(long chatId) {
         String welcomeText = "🎯 Добро пожаловать в трекер привычек!\n\n" +
                 "Я помогу вам формировать полезные привычки!\n" +
@@ -105,7 +98,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для отправки сообщения со справкой
     private void sendHelpMessage(long chatId) {
         String helpText = "🎯 Добро пожаловать в трекер привычек!\n\n" +
                 "С помощью этого бота вы можете:\n" +
@@ -136,13 +128,11 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для начала создания привычки
     private void startCreatingHabit(long chatId, long userId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("📝 Введите название новой привычки:");
 
-        // Устанавливаем состояние пользователя - ожидание названия привычки
         userStates.put(userId, new UserState("waiting_for_habit_name"));
 
         try {
@@ -152,7 +142,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для показа всех привычек пользователя
     private void showUserHabits(long chatId, long userId) {
         List<Habit> habits = dbManager.getUserHabits(userId);
 
@@ -176,7 +165,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для запроса ID привычки для отметки выполнения
     private void askForHabitToComplete(long chatId, long userId) {
         List<Habit> habits = dbManager.getUserHabits(userId);
 
@@ -202,7 +190,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для запроса ID привычки для удаления
     private void askForHabitToDelete(long chatId, long userId) {
         List<Habit> habits = dbManager.getUserHabits(userId);
 
@@ -228,7 +215,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для запроса ID привычки для добавления описания
     private void askForHabitToAddDescription(long chatId, long userId) {
         List<Habit> habits = dbManager.getUserHabits(userId);
 
@@ -259,7 +245,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для показа статистики пользователя
     private void showStats(long chatId, long userId) {
         String stats = dbManager.getUserStats(userId);
 
@@ -274,7 +259,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для обработки пользовательского ввода (не команд)
     private void handleUserInput(long chatId, long userId, String input) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -295,7 +279,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     String habitName = userState.tempData;
                     String description = input.equals("-") ? "" : input;
 
-                    // Сохраняем привычку в базу данных
                     boolean success = dbManager.addHabit(userId, habitName, description);
                     if (success) {
                         message.setText("✅ Привычка \"" + habitName + "\" успешно создана!\n" +
@@ -366,7 +349,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
                     break;
 
                 case "waiting_for_description_text":
-                    // Пользователь ввел описание для привычки
                     Integer habitId = userState.tempHabitId;
                     String newDescription = input.equals("-") ? "" : input;
 
@@ -393,60 +375,48 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для добавления клавиатуры к сообщению
     private void sendMessageWithKeyboard(SendMessage message) {
-        // Создаем клавиатуру
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setSelective(true);
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(false);
 
-        // Создаем список строк клавиатуры
         List<KeyboardRow> keyboard = new ArrayList<>();
 
-        // Первая строка
         KeyboardRow row1 = new KeyboardRow();
         row1.add("/newhabit");
         row1.add("/myhabits");
 
-        // Вторая строка
         KeyboardRow row2 = new KeyboardRow();
         row2.add("/complete");
         row2.add("/adddescription");
 
-        // Третья строка
         KeyboardRow row3 = new KeyboardRow();
         row3.add("/deletehabit");
         row3.add("/stats");
 
-        // Четвертая строка
         KeyboardRow row4 = new KeyboardRow();
         row4.add("/help");
 
-        // Добавляем строки в клавиатуру
         keyboard.add(row1);
         keyboard.add(row2);
         keyboard.add(row3);
         keyboard.add(row4);
         keyboardMarkup.setKeyboard(keyboard);
 
-        // Устанавливаем клавиатуру в сообщение
         message.setReplyMarkup(keyboardMarkup);
     }
 
-    // Метод, возвращающий имя бота (без @)
     @Override
     public String getBotUsername() {
         return ""; //имя бота
     }
 
-    // Метод, возвращающий токен бота
     @Override
     public String getBotToken() {
         return ""; //токен бота
     }
 
-    // Главный метод для запуска бота
     public static void main(String[] args) {
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -459,7 +429,6 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
         }
     }
 
-    // Метод для закрытия соединений при завершении работы
     @Override
     public void onClosing() {
         dbManager.close();
