@@ -20,6 +20,13 @@
             <artifactId>telegrambots</artifactId>
             <version>6.8.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.42.0.0</version>
+        </dependency>
     </dependencies>
+
+
 
 </project>
