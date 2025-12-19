@@ -449,13 +449,13 @@ public class HabitTrackerBot extends TelegramLongPollingBot {
     // Метод, возвращающий имя бота (без @)
     @Override
     public String getBotUsername() {
-        return "treker_privichek_bot"; // Замените на имя вашего бота
+        return ""; // Замените на имя вашего бота
     }
 
     // Метод, возвращающий токен бота
     @Override
     public String getBotToken() {
-        return "8234577299:AAElrwziWdME-CXXjYeFjcqSSKb32BacfsU"; // Замените на ваш токен
+        return ""; // Замените на ваш токен
     }
 
     // Главный метод для запуска бота

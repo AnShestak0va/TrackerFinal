@@ -88,7 +88,6 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return habits;
     }
 

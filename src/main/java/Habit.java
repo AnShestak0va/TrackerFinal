@@ -30,7 +30,7 @@ public class Habit {
     public int getCompletedDays() { return completedDays; }
     public int getTotalDays() { return totalDays; }
 
-    // Метод для форматирования информации о привычке в строку
+    // Метод для форматирования информации о привычке
     @Override
     public String toString() {
         return String.format("📌 Привычка #%d\n" +
